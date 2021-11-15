@@ -54,29 +54,41 @@ public class VideoGameDAO implements IVideoGameDAO{
         try {
             MultiKeyMap keys;
             Set<MultiKeyMap> allKeys;
-            int maxId = 0;
+            int maxId;
 
-            if (this.videoGameExists(vg)) {
+            if (this.videoGameExists(vg.getName())) {
                 System.err.println("Video game already exists");
                 return false;
             }
+
+            maxId = vg.getId();
 
             keys = new MultiKeyMap(new HashMap<String, Object>() {{
                 put("name", vg.getName());
             }});
 
-
             allKeys = VIDEO_GAMES_LIBRARY.keySet();
 
             for (MultiKeyMap key:allKeys) {
-                int id = Integer.parseInt(key.get("id").toString());
+                int id = Integer.parseInt(key.get("id").toString()) + 1;
 
                 if (id > maxId) {
                     maxId = id;
                 }
             }
 
+            if (maxId == -1) {
+                maxId = 0;
+            }
+
             keys.put("id", maxId);
+            vg.setId(maxId);
+
+            if (vg.incorrectData()) {
+                System.err.println("Video game data is not well formatted");
+                return false;
+            }
+
             VIDEO_GAMES_LIBRARY.put(keys, vg);
             return true;
         } catch (IllegalArgumentException e) {
@@ -87,17 +99,26 @@ public class VideoGameDAO implements IVideoGameDAO{
 
     /**
      * Modifier un jeu vidéo existant
+     * @param identifier Identifiant (ID ou nom) du jeu vidéo à modifier
      * @param vg Jeu vidéo à modifier
      * @return true si jeu modifié avec succès (existant et correctement formaté), false sinon
      */
     @Override
-    public boolean modify(VideoGame vg) {
+    public boolean modify(String identifier, VideoGame vg) {
         try {
-            if (!this.videoGameExists(vg)) {
+            if (!this.videoGameExists(identifier)) {
+                return false;
+            }
+
+            vg.setId(this.find(identifier).getId());
+
+            if (vg.incorrectData()) {
+                System.err.println("Video game data is not well formatted");
                 return false;
             }
 
             VIDEO_GAMES_LIBRARY.put(new MultiKeyMap(new HashMap<String, Object>() {{
+                put("id", vg.getId());
                 put("name", vg.getName());
             }}), vg);
 
@@ -125,22 +146,11 @@ public class VideoGameDAO implements IVideoGameDAO{
 
     /**
      * Permet de vérifier si un jeu vidéo existe
-     * @param vg Jeu vidéo
+     * @param identifier Identifiant (ID ou nom) du jeu vidéo
      * @return true si existant, false sinon
      */
-    public boolean videoGameExists(VideoGame vg) {
-        MultiKeyMap keys;
-
-        if (vg == null) {
-            System.err.println("Video game can't be null");
-            return false;
-        }
-
-        keys = new MultiKeyMap(new HashMap<String, Object>() {{
-            put("name", vg.getName());
-        }});
-
-        return VIDEO_GAMES_LIBRARY.containsKey(keys);
+    public boolean videoGameExists(String identifier) {
+        return VIDEO_GAMES_LIBRARY.containsKey(this.constructMultiKeyMap(identifier));
     }
 
     /**
@@ -148,7 +158,7 @@ public class VideoGameDAO implements IVideoGameDAO{
      * @param info Information (actuellement ID ou nom du jeu)
      * @return Clé multivaluée correspondante
      */
-    public MultiKeyMap constructMultiKeyMap(String info) {
+    private MultiKeyMap constructMultiKeyMap(String info) {
         Map<String, Object> keys = new HashMap<>();
 
         if (info != null) {

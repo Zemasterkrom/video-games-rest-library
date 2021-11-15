@@ -15,7 +15,9 @@ public interface IVideoGameDAO {
 
     boolean add(VideoGame vg);
 
-    boolean modify(VideoGame vg);
+    boolean modify(String identifier, VideoGame vg);
 
     boolean delete(String identifier);
+
+    boolean videoGameExists(String identifier);
 }

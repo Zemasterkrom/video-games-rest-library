@@ -1,6 +1,8 @@
 package com.rk.videogameslibrary.model;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
 /**
@@ -32,7 +34,7 @@ public class VideoGame {
     /**
      * Date de sortie du jeu
      */
-    public Date releasedDate;
+    public String releasedDate;
 
     /**
      * Constructeur par défaut de VideoGame
@@ -42,14 +44,14 @@ public class VideoGame {
         this.name = "";
         this.editor = "";
         this.description = "";
-        this.releasedDate = new Date(System.currentTimeMillis());
+        this.releasedDate = "";
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(int id) throws IllegalArgumentException {
         if (id < 0) {
             throw new IllegalArgumentException("ID can't be lesser than 0");
         }
@@ -61,7 +63,7 @@ public class VideoGame {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name) throws IllegalArgumentException {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name can't be empty");
         }
@@ -73,9 +75,9 @@ public class VideoGame {
         return editor;
     }
 
-    public void setEditor(String editor) {
-        if (editor == null || editor.trim().isEmpty()) {
-            throw new IllegalArgumentException("Editor can't be empty");
+    public void setEditor(String editor) throws IllegalArgumentException {
+        if (editor == null) {
+            throw new IllegalArgumentException("Editor can't be null");
         }
 
         this.editor = editor;
@@ -85,24 +87,44 @@ public class VideoGame {
         return description;
     }
 
-    public void setDescription(String description) {
-        if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("Description can't be empty");
+    public void setDescription(String description) throws IllegalArgumentException {
+        if (description == null) {
+            throw new IllegalArgumentException("Description can't be null");
         }
 
         this.description = description;
     }
 
-    public Date getReleasedDate() {
+    public String getReleasedDate() {
         return releasedDate;
     }
 
-    public void setReleasedDate(Date releasedDate) {
-        if (releasedDate == null) {
-            throw new IllegalArgumentException("Release date can't be empty");
+    public void setReleasedDate(String releasedDate) throws IllegalArgumentException {
+        try {
+            LocalDate.parse(releasedDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            this.releasedDate = releasedDate;
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Release date can't be empty and must be formatted according to the format yyyy-MM-dd");
         }
+    }
 
-        this.releasedDate = releasedDate;
+    /**
+     * Vérifier si les champs auto-injectés sont bien formatés en retestant les setters
+     * @return true si bien formatés, false sinon
+     */
+    public boolean incorrectData() {
+        try {
+            this.setId(this.id);
+            this.setName(this.name);
+            this.setEditor(this.editor);
+            this.setDescription(this.description);
+            this.setReleasedDate(this.releasedDate);
+
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            return true;
+        }
     }
 
     @Override

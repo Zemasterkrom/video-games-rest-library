@@ -47,5 +47,21 @@ public class MultiKeyMap extends HashMap<String, Object> {
 
         return false;
     }
+
+    /**
+     * Puisque le hashCode ne peut pas être généré étant donné la structure dynamique de la Map, nous devons calculer le hashCode manuellement.
+     * Le HashCode est calculé selon le hashCode de chaque objet héritant de Object.
+     * @return HashCode de la MultiKeyMap
+     */
+    @Override
+    public int hashCode() {
+        int hash = 0;
+
+        for (String s:this.keySet()) {
+            hash += s.hashCode();
+        }
+
+        return hash;
+    }
 }
 
