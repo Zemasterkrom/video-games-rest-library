@@ -12,7 +12,7 @@ public class MultiKeyMap extends HashMap<String, Object> {
      * Constructeur de MultiKeyMap
      * @param map Map clé/valeur associant un champ à une valeur (contenu indexable pour la recherche)
      */
-    public MultiKeyMap(Map<String, Object> map) {
+    public MultiKeyMap(Map<String, ?> map) {
         this.put("id", -1);
         this.put("name", "");
 

@@ -11,11 +11,11 @@ public interface IVideoGameDAO {
 
     Set<VideoGame> findAll();
 
-    VideoGame find(MultiKeyMap key);
+    VideoGame find(String identifier);
 
     boolean add(VideoGame vg);
 
     boolean modify(VideoGame vg);
 
-    boolean delete(VideoGame vg);
+    boolean delete(String identifier);
 }

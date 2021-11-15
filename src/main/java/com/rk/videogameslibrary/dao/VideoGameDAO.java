@@ -1,6 +1,7 @@
 package com.rk.videogameslibrary.dao;
 
 import com.rk.videogameslibrary.model.VideoGame;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Set;
 /**
  * Classe représentant le DAO de la base de données statique de jeux vidéo (la librairie)
  */
+@Component
 public class VideoGameDAO implements IVideoGameDAO{
 
     /**
@@ -28,13 +30,14 @@ public class VideoGameDAO implements IVideoGameDAO{
 
     /**
      * Trouver et retourner un jeu vidéo existant
-     * @param keys Clé multivaluée de recherche
+     * @param identifier Identifiant de recherche (ID ou nom)
      * @return Jeu vidéo si existant, un jeu vide sinon
      */
     @Override
-    public VideoGame find(MultiKeyMap keys) {
+    public VideoGame find(String identifier) {
         try {
-            return VIDEO_GAMES_LIBRARY.containsKey(keys) ? VIDEO_GAMES_LIBRARY.get(keys) : new VideoGame();
+            MultiKeyMap multiKeys = this.constructMultiKeyMap(identifier);
+            return VIDEO_GAMES_LIBRARY.containsKey(multiKeys) ? VIDEO_GAMES_LIBRARY.get(multiKeys) : new VideoGame();
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return new VideoGame();
@@ -107,20 +110,13 @@ public class VideoGameDAO implements IVideoGameDAO{
 
     /**
      * Supprimer un jeu vidéo existant
-     * @param vg Jeu vidéo à supprimer
+     * @param identifier Jeu vidéo à supprimer
      * @return true si supprimé (existant), false sinon
      */
     @Override
-    public boolean delete(VideoGame vg) {
+    public boolean delete(String identifier) {
         try {
-            if (this.videoGameExists(vg)) {
-                VIDEO_GAMES_LIBRARY.remove(new MultiKeyMap(new HashMap<String, Object>() {{
-                    put("name", vg.getName());
-                }}));
-
-                return true;
-            }
-            return false;
+            return VIDEO_GAMES_LIBRARY.remove(this.constructMultiKeyMap(identifier)) != null;
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             return false;
@@ -145,5 +141,24 @@ public class VideoGameDAO implements IVideoGameDAO{
         }});
 
         return VIDEO_GAMES_LIBRARY.containsKey(keys);
+    }
+
+    /**
+     * Construire un MultiKeyMap selon le format de la donnée
+     * @param info Information (actuellement ID ou nom du jeu)
+     * @return Clé multivaluée correspondante
+     */
+    public MultiKeyMap constructMultiKeyMap(String info) {
+        Map<String, Object> keys = new HashMap<>();
+
+        if (info != null) {
+            if (info.matches("^[0-9]+$")) {
+                keys.put("id", Integer.parseInt(info));
+            } else {
+                keys.put("name", info);
+            }
+        }
+
+        return new MultiKeyMap(keys);
     }
 }
