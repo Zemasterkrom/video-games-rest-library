@@ -3,10 +3,7 @@ package com.rk.videogameslibrary.dao;
 import com.rk.videogameslibrary.model.VideoGame;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Classe représentant le DAO de la base de données statique de jeux vidéo (la librairie)
@@ -25,7 +22,17 @@ public class VideoGameDAO implements IVideoGameDAO{
      */
     @Override
     public Set<VideoGame> findAll() {
-        return new HashSet<>(VIDEO_GAMES_LIBRARY.values());
+        Set<VideoGame> vgs = new TreeSet<>((vgOne, vgTwo) -> {
+            if (vgOne.getId() == vgTwo.getId()) {
+                return 0;
+            } else if (vgOne.getId() > vgTwo.getId()) {
+                return 1;
+            }
+            return -1;
+        });
+        vgs.addAll(VIDEO_GAMES_LIBRARY.values());
+
+        return vgs;
     }
 
     /**

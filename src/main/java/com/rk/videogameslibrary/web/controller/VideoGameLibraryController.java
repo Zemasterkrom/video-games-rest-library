@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Controller permettant de modifier la base statique de jeux vidéo présente
@@ -31,17 +30,7 @@ public class VideoGameLibraryController {
     @ResponseBody
     @GetMapping(value = "/video-games/all")
     public Set<VideoGame> getAllVideoGames() {
-        Set<VideoGame> vgs = new TreeSet<>((vgOne, vgTwo) -> {
-            if (vgOne.getId() == vgTwo.getId()) {
-                return 0;
-            } else if (vgOne.getId() > vgTwo.getId()) {
-                return 1;
-            }
-            return -1;
-        });
-        vgs.addAll(dao.findAll());
-
-        return vgs;
+        return dao.findAll();
     }
 
     /**
