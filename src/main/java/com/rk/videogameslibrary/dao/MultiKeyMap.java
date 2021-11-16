@@ -26,6 +26,44 @@ public class MultiKeyMap extends HashMap<String, Object> {
         }
     }
 
+    @Override
+    public boolean replace(String key, Object oldValue, Object newValue) {
+        if (oldValue == null || newValue == null) {
+            throw new IllegalArgumentException("Can't replace with null values");
+        }
+
+        return super.replace(key, oldValue, newValue);
+    }
+
+    @Override
+    public Object put(String key, Object value) {
+        if (key == null || value== null) {
+            throw new IllegalArgumentException("Can't put with null values");
+        }
+
+        return super.put(key, value);
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ?> m) {
+        if (m == null) {
+            throw new IllegalArgumentException("Can't put with null values");
+        }
+
+        for (Object o:m.keySet()) {
+            String key = o == null ? null : o.toString();
+            Object value = key == null ? null : m.get(o.toString());
+
+            if (key == null || value == null) {
+                throw new IllegalArgumentException("Can't put with null values");
+            }
+
+            this.put(key, value);
+        }
+
+        super.putAll(m);
+    }
+
     /**
      * Overriding de la méthode equals de HashSet.
      * On recherche parmi les couples clé/valeur des clés multivaluées : si un autre objet possède une même clé et valeur, alors il y a un match dans la recherche :
